@@ -16,7 +16,7 @@
 
 ## Install dependencies and make necessary folders:
 ```shell
-cd gpt2-implement
+cd GPT-2-implement-for-text-summarization
 mkdir checkpoint log data
 ```
 First, you must install dependencies, run the following command:
