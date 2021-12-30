@@ -1,9 +1,7 @@
 import os
 import pandas as pd
 from torch.utils.data import DataLoader, IterableDataset
-from utils.utils import create_logger
-
-logger = create_logger()
+from utils.utils import logger
 
 
 class JPIterDataset(IterableDataset):

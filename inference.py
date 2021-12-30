@@ -8,9 +8,7 @@ import torch
 import torch.nn as nn
 from train import initialize
 
-from utils.utils import create_logger
-
-logger = create_logger()
+from utils.utils import logger
 
 
 def set_seed(seed=42):

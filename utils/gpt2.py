@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Optional, Tuple
 import torch
 from torch.functional import Tensor
 import torch.nn as nn
@@ -104,7 +104,11 @@ class GPT2Config(object):
                                     self.layer_norm_epsilon)
 
 
-def scaled_dot_product(query: Tensor, key: Tensor, value: Tensor, heads: int, mask=None) -> Dict[Tensor, Tensor]:
+def scaled_dot_product(query: Tensor,
+                       key: Tensor,
+                       value: Tensor,
+                       heads: int,
+                       mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor]:
     dim_k = query.size(-1)
 
     scores = torch.bmm(query, key.transpose(1, 2))/sqrt(dim_k)
@@ -134,7 +138,7 @@ class MultiheadAttention(nn.Module):
                 queries: Tensor,
                 keys: Tensor,
                 values: Tensor,
-                mask=None) -> Dict[Tensor, Tensor]:
+                mask=None) -> Tuple[Tensor, Tensor]:
 
         heads = self.n_head
         head_dim = self.head_dim
@@ -182,7 +186,7 @@ class MultiheadAttention(nn.Module):
                     batch_size: int,
                     heads: int,
                     seq_len: int,
-                    head_dim: int) -> Dict[Tensor, Tensor]:
+                    head_dim: int) -> Tuple[Tensor, Tensor]:
 
         attn = attn.view(batch_size, heads, seq_len, head_dim).transpose(1, 2)
         attn = attn.contiguous().view(batch_size, seq_len, heads*head_dim)
@@ -230,7 +234,7 @@ class DecoderLayer(nn.Module):
 
     def forward(self,
                 hidden_state: Tensor,
-                mask: Union[Tensor, None]) -> Dict[Tensor, Tensor]:
+                mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor]:
         attns, weights = self.mask_mha(hidden_state, hidden_state, hidden_state, mask)
         hidden_state = hidden_state + attns
         hidden_state = self.ln_1(hidden_state)
@@ -269,7 +273,7 @@ class Decoder(nn.Module):
 
     def forward(self,
                 x: Tensor,
-                mask: Union[Tensor, None]) -> Tuple[Tensor, Tensor]:
+                mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor]:
         
         h_state = self.embeddings(x)
         for layer in self.layers:

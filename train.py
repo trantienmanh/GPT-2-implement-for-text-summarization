@@ -8,10 +8,8 @@ import torch.nn as nn
 import numpy as np
 
 from utils.dataset import dataset
-from utils.utils import create_logger, EarlyStopping, set_seed
+from utils.utils import logger, EarlyStopping, set_seed
 from utils.gpt2 import GPT2Config, GPT2Model
-logger = create_logger()
-
 
 def initialize(device,
             tokenizer: T5Tokenizer,

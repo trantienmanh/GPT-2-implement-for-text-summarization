@@ -7,10 +7,9 @@ from transformers import T5Tokenizer
 import torch
 from utils.dataset import dataset
 
-from utils.utils import create_logger
+from utils.utils import logger
 from train import initialize, validate
 
-logger = create_logger()
 
 def set_seed(seed=42):
     random.seed(seed)

@@ -3,6 +3,15 @@ import random
 import numpy as np
 import torch
 
+def init_logger():
+    logging.basicConfig(format='%(asctime)s - %(name)s/%(funcName)s - %(levelname)s - %(message)s',
+                        level=logging.DEBUG,
+                        datefmt="%m/%d/%Y %I:%M:%S %p")
+    logger = logging.getLogger(__name__)
+    return logger
+
+logger = init_logger()
+
 def set_seed(seed=42):
     random.seed(seed)
     np.random.seed(seed)
@@ -33,9 +42,3 @@ class EarlyStopping:
             self.best_score = score
             self.counter = 0
 
-def create_logger():
-    logging.basicConfig(format='%(asctime)s - %(name)s/%(funcName)s - %(levelname)s - %(message)s',
-                        level=logging.DEBUG,
-                        datefmt="%m/%d/%Y %I:%M:%S %p")
-    logger = logging.getLogger(__name__)
-    return logger
