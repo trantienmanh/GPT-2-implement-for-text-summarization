@@ -74,7 +74,7 @@ def step(model: GPT2Model,
         device: torch.device,
         pad_idx: int):
 
-    source_ids, target_ids = tuple(t.to(device) for t in batch)
+    source_ids, target_ids, _ = tuple(t.to(device) for t in batch)
     # source_ids, target_ids shape of: [batch_size, seq_len]
 
     optimizer.zero_grad()
@@ -105,7 +105,7 @@ def validate(model: GPT2Model,
     running_loss = 0.0
     with torch.no_grad():
         for batch in val_iter:
-            source_ids, target_ids = tuple(t.to(device) for t in batch)
+            source_ids, target_ids, _ = tuple(t.to(device) for t in batch)
 
             logits = model(input_ids=source_ids, pad_idx=pad_idx)[0]
             logits = logits[:, :-1].contiguous().view(-1, logits.size(-1))
@@ -245,6 +245,8 @@ def main():
     }, os.path.join(CHECKPOINT, 'config.pt'))
 
     logger.info('Training model...\n')
+    logger.info(f'Using lr = {LR}')
+
     start = time.time()
     train(model=model,
           criterion=criterion,
