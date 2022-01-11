@@ -143,7 +143,7 @@ def train(model: GPT2Model,
             loss = step(model, criterion, optimizer, scheduler, batch, device, pad_idx)
             running_loss += loss
 
-            if (idx+1) % 50 == 0 or idx == 0:
+            if (idx+1) % 100 == 0 or idx == 0:
                 print("Epoch: {}/{} - iter: {}/{} - train_loss: {}".format(epoch + 1, epochs, idx+1, len(train_iter), running_loss/(idx+1)))
         else:
             train_loss = running_loss/(len(train_iter))
@@ -198,6 +198,8 @@ def main():
     PATIENCE = args.patience
     DELTA = args.delta
 
+    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
+    os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3"
     DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     set_seed()
