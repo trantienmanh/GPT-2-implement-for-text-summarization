@@ -1,5 +1,3 @@
-import random
-import numpy as np
 import torch
 import os
 import argparse
@@ -8,44 +6,41 @@ import torch
 import torch.nn as nn
 from train import initialize
 
-from utils.utils import logger
-
-
-def set_seed(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.backends.cudnn.deterministic = True
-    logger.info(f"using seed: {seed}")
+from utils.utils import logger, set_seed
 
 
 def summary(text: str,
             device: torch.device,
-            model,
-            pad_idx: int,
+            model: torch.nn.Module,
             tokenizer: T5Tokenizer,
             max_seq_len: int = 512,
-            summary_max_len: int = 96) -> str:
+            summary_max_len: int = 128) -> str:
 
     tokens = tokenizer.encode(text=text,
                               max_length=max_seq_len,
                               truncation=True)[:-1] + [tokenizer.sep_token_id]
-    
+
     tokens = torch.tensor(tokens).to(device).unsqueeze(0)
 
-    sep_idx = len(tokens)-1
+    sep_idx = tokens.shape[-1] - 1
     with torch.no_grad():
+        punc_idx = 8
+        punc_count = 0
         for _ in range(summary_max_len):
-            last_logit = model(input_ids=tokens, pad_idx=pad_idx, device=device).logits[:, -1]
+            last_logit = model(tokens).logits[:, -1]
 
             filter = top_k_top_p_filtering(last_logit, top_k=50, top_p=1.0)
             props = nn.functional.softmax(filter, dim=-1)
             final_token = torch.multinomial(props, num_samples=1)
-            if final_token[0, 0].cpu().numpy() == tokenizer.eos_token_id:
-                return tokenizer.decode(tokens.tolist()[0][sep_idx:])
 
             tokens = torch.cat([tokens, final_token], dim=-1)
+            token_id = final_token[0, 0].cpu().numpy()
+
+            if token_id == punc_idx:
+                punc_count += 1
+            if token_id == tokenizer.eos_token_id or punc_count >= 3:
+                return tokenizer.decode(tokens.tolist()[0][sep_idx:])
+
         return tokenizer.decode(tokens.tolist()[0][sep_idx:])
 
 

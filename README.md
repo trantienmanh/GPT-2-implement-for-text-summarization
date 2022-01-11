@@ -33,12 +33,19 @@ For training from scratch, you can run command like this:
 ```shell
 python3 train.py --root_dir ./data/ --file_name jp_text_sum_extend.csv --batch_size 2 --max_seq_len 512 --epochs 20 --lr 3e-4 --checkpoint ./checkpoint/ --patience 5 --delta 1e-6
 ```
+or
+```shell
+bash run.sh scratch
+```
 
 For resume with the checkpoint, code may be:
 ```shell
 python3 train.py --root_dir ./data/ --file_name jp_text_sum_extend.csv --batch_size 2 --max_seq_len 512 --epochs 20 --lr 3e-4 --checkpoint ./checkpoint/ --patience 5 --delta 1e-6 --resume path-to-the-checkpoint-is-resumed
 ```
-
+or
+```shell
+bash run.sh resume path-to-the-checkpoint-is-resumed
+```
 ## Testing
 
 For evaluation, the command may like this:

@@ -18,7 +18,7 @@ def set_seed(seed=42):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
-    print(f'using seed: %d' % (seed))
+    logger.info(f'using seed: {seed}')
 
 
 class EarlyStopping:

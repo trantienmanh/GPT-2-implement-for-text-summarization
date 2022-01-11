@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import torch
 from torch.utils.data import DataLoader, IterableDataset
 from utils.utils import logger
 
@@ -32,12 +33,25 @@ class JPIterDataset(IterableDataset):
     
     def __iter__(self):
         for source, target in zip(self.data.source, self.data.target):
-            tokens = self.tokenizer.encode(text=source + self.tokenizer.sep_token + target,
-                                    padding='max_length',
-                                    truncation=True,
-                                    max_length=self.max_len,
-                                    return_tensors='pt')
-            yield tokens[0], tokens[0]
+            tmp = self.tokenizer.encode(self.additional_text)[:-1]
+            src_tokens = self.tokenizer.encode(source)[:-1]
+            trg_tokens = self.tokenizer.encode(target)
+
+            input_ids = src_tokens + [self.tokenizer.sep_token_id] + tmp + trg_tokens
+
+            attention_mask = [1] * self.max_len
+            if len(input_ids) > self.max_len:
+                input_ids = input_ids[-512:]
+                sep_idx = input_ids.index(self.tokenizer.sep_token_id)
+
+                yield torch.tensor(input_ids), torch.tensor(attention_mask), torch.tensor(input_ids), torch.tensor(sep_idx)
+            else:
+                pad_len = self.max_len - len(input_ids)
+                attention_mask[len(input_ids):] = [0]*pad_len
+                input_ids = input_ids + [self.tokenizer.pad_token_id]* pad_len
+                sep_idx = input_ids.index(self.tokenizer.sep_token_id)
+
+                yield torch.tensor(input_ids), torch.tensor(attention_mask), torch.tensor(input_ids), torch.tensor(sep_idx)
 
 
 def dataset(tokenizer,
